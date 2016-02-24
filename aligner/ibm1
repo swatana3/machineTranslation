@@ -15,32 +15,37 @@ optparser.add_option("-n", "--num_sentences", dest="num_sents", default=sys.maxi
 f_data = "%s.%s" % (opts.train, opts.french)
 e_data = "%s.%s" % (opts.train, opts.english)
 
-sys.stderr.write("Training with IBM Model1...")
-
-bitext = [[sentence.strip().split() for sentence in pair] for pair in zip(open(f_data), open(e_data))[:opts.num_sents]]
 #parameter we are trying to find T-ef
-t_ef = dict(int)
+t_ef = dict()
 #estimating the parameter through count and normalizing by total_f
-total_f = dict(int) 
-count_ef = dict(int)
+total_f = dict() 
+count_ef = dict()
 
 #corpus of all f and e 
 corpus_e = set()
 corpus_f = set()
 
+#if e has already appeared in sentence
+ew_in_s = set()
+fw_in_s = set()
+
+
 #initalizing e dict we are going to use for computation with sentences
-s_total = dict(int)
+s_total = dict()
 
 #max t_ef, max_j to assign alignment
 max_t_ef =0
 max_j = 0
 
+#setting the bitext
+bitext = [[sentence.strip().split() for sentence in pair] for pair in zip(open(f_data), open(e_data))[:opts.num_sents]]
+
 #find all the words of f and e
 for (n, (f, e)) in enumerate(bitext):
   for f_i in set(f):
-    for e_i in set(e):
-       corpus_e.add(e_i)
-       corpus_f.add(f_i)
+  	corpus_f.add(f_i)
+  for e_i in set(e):
+  	corpus_e.add(e_i)
 
 #intializing t_ef to the whole corpus uniformly
 for f_i in corpus_f:
@@ -53,50 +58,47 @@ for f_i in corpus_f:
     for e_i in corpus_e:
       count_ef[(e_i, f_i)] = 0.0
     total_f[f_i] =0.0 
-    sys.stderr.write(".")
 
-for x in range(0,5): #figure out for loops
-  #for all sentence pairs (e,f)
-  for (n, (f, e)) in enumerate(bitext): 
-    #compute normalization
-    for e_i in set(e):
-      s_total[e_i] = 0.0
-      for f_i in set(f):
-        s_total[e_i] += t_ef[(e_i, f_i)]
-    #collect count
-    for e_i in set(e): #need to know if this e is a string or a set you wnat duplicates
-      for f_i in set(f):
-        count_ef[(e_i, f_i)] += t_ef[(e_i,f_i)]/s_total[e_i]
-        total_f[f_i] += t_ef[(e_i,f_i)] /s_total[e_i]
-  
-  #
-  for f_i in corpus_f:
-    for e_i in corpus_e:
-      sys.stderr.write(".")
-      t_ef[(e_i, f_i)] = count_ef[(e_i, f_i)]/total_f[f_i]
+for x in range(0,5):
+	for (n, (f, e)) in enumerate(bitext): 
+		ew_in_s.clear()
+		fw_in_s.clear()
+		for e_i in e:
+			if e_i not in ew_in_s:
+				s_total[e_i] = 0.0
+				ew_in_s.add(e_i)
+				# print "ew is: ", ew_in_s
+			for f_i in f:
+				fw_in_s.add(f_i)
+				s_total[e_i] += t_ef[(e_i, f_i)]
+				# print "t_ef is: ", t_ef[(e_i, f_i)]
+				# print "e_i is: ", e_i
+				# print "f_i is: ", f_i
+				# print "s_total is: ", s_total[e_i]
+				# print "fw is: ", fw_in_s
+		for e_i in ew_in_s:
+			for f_i in fw_in_s:
+				# print "ew all is: ", ew_in_s
+				# print "fw all is: ", fw_in_s
+				# print "s_total_all is: " , s_total[e_i]
+				# print "e_i is: ", e_i
+				# print "f_i is: ", f_i
+				count_ef[(e_i, f_i)] += t_ef[(e_i,f_i)]/s_total[e_i]
+				total_f[f_i] += t_ef[(e_i,f_i)] /s_total[e_i]
+#maximizes
+	for f_i in corpus_f:
+		for e_i in corpus_e:
+			t_ef[(e_i, f_i)] = count_ef[(e_i, f_i)]/total_f[f_i]
 
 for (f, e) in bitext:
+	for (i, f_i) in enumerate(f): 
+		max_t_ef = 0
+		max_j = 0
 
-  for (i, f_i) in enumerate(f): 
-    max_t_ef = 0
-    max_j = 0
-    # print "i is: ", i
-    # print "f_i is: ", f_i
+		for (j, e_j) in enumerate(e):
+			if (t_ef[(e_j,f_i)] > max_t_ef):
+				max_t_ef = t_ef[(e_j,f_i)]
+				max_j = j
+		sys.stdout.write("%i-%i " % (i,max_j))
+	sys.stdout.write("\n")
 
-
-    # print "max_t_ef before is: ", max_t_ef
-
-    for (j, e_j) in enumerate(e):
-
-      # print "t_ef is: ", t_ef[(e_j,f_i)]
-
-      if (t_ef[(e_j,f_i)] > max_t_ef):
-        # print "j_used is: ", j_used
-        max_t_ef = t_ef[(e_j,f_i)]
-        # print "max_t_ef after is: ", max_t_ef
-        max_j = j
-        # print "max_j is: ", max_j
-
-    sys.stdout.write("%i-%i " % (i,max_j))
-    # j_used.add(max_j)
-  sys.stdout.write("\n")
