@@ -105,5 +105,29 @@ for (f, e) in bitext:
 			if (t_ef[(e_j,f_i)] > max_t_ef):
 				max_t_ef = t_ef[(e_j,f_i)]
 				max_j = j
-		sys.stdout.write("%i-%i " % (i,max_j))
-	sys.stdout.write("\n")
+		try:
+			sys.stdout.write("%i-%i " % (i,max_j))
+		except IOError:
+    		# stdout is closed, no point in continuing
+    		# Attempt to close them explicitly to prevent cleanup problems:
+    		try:
+        		sys.stdout.close()
+    		except IOError:
+        		pass
+    		try:
+        		sys.stderr.close()
+    		except IOError:
+        		pass
+    try:
+    	sys.stdout.write("\n")
+    except IOError:
+    		# stdout is closed, no point in continuing
+    		# Attempt to close them explicitly to prevent cleanup problems:
+    		try:
+        		sys.stdout.close()
+    		except IOError:
+        		pass
+    		try:
+        		sys.stderr.close()
+    		except IOError:
+        		pass
