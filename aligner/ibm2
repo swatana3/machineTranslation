@@ -108,26 +108,22 @@ for (f, e) in bitext:
 		try:
 			sys.stdout.write("%i-%i " % (i,max_j))
 		except IOError:
-    		# stdout is closed, no point in continuing
-    		# Attempt to close them explicitly to prevent cleanup problems:
-    		try:
-        		sys.stdout.close()
-    		except IOError:
-        		pass
+			try:
+				sys.stdout.close()
+			except IOError:
+				pass
     		try:
         		sys.stderr.close()
     		except IOError:
         		pass
-    try:
-    	sys.stdout.write("\n")
-    except IOError:
-    		# stdout is closed, no point in continuing
-    		# Attempt to close them explicitly to prevent cleanup problems:
-    		try:
-        		sys.stdout.close()
-    		except IOError:
-        		pass
-    		try:
-        		sys.stderr.close()
-    		except IOError:
-        		pass
+	try:
+		sys.stdout.write("\n")
+	except IOError:
+		try:
+			sys.stdout.close()
+		except IOError:
+			pass
+		try:
+			sys.stderr.close()
+		except IOError:
+			pass
