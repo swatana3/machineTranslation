@@ -1,0 +1,117 @@
+#!/usr/bin/env python
+from __future__ import division
+import optparse
+import sys
+from collections import defaultdict
+
+
+optparser = optparse.OptionParser()
+optparser.add_option("-d", "--data", dest="train", default="data/hansards", help="Data filename prefix (default=data)")
+optparser.add_option("-e", "--english", dest="english", default="e", help="Suffix of English filename (default=e)")
+optparser.add_option("-f", "--french", dest="french", default="f", help="Suffix of French filename (default=f)")
+optparser.add_option("-t", "--threshold", dest="threshold", default=0.8, type="float", help="Threshold for aligning with Dice's coefficient (default=0.5)")
+optparser.add_option("-n", "--num_sentences", dest="num_sents", default=sys.maxint, type="int", help="Number of sentences to use for training and alignment")
+(opts, _) = optparser.parse_args()
+f_data = "%s.%s" % (opts.train, opts.french)
+e_data = "%s.%s" % (opts.train, opts.english)
+
+#parameter we are trying to find T-ef
+t_ef = dict()
+#estimating the parameter through count and normalizing by total_f
+total_f = dict() 
+count_ef = dict()
+
+#finding corpus of length e
+corpus_e = set()
+num_e = 0
+
+
+#if e has already appeared in sentence
+ew_in_s = set()
+fw_in_s = set()
+
+
+#initalizing e dict we are going to use for computation with sentences
+s_total = dict()
+
+#max t_ef, max_j to assign alignment
+max_t_ef =0
+max_j = 0
+
+#null word
+nw = 4.1
+
+
+#setting the bitext
+bitext = [[sentence.strip().split() for sentence in pair] for pair in zip(open(f_data), open(e_data))[:opts.num_sents]]
+
+#find all the words of f and e
+for (n, (f, e)) in enumerate(bitext):
+  for e_i in set(e):
+  	corpus_e.add(e_i)
+
+num_e = len(corpus_e)
+del corpus_e
+
+
+#intializing t_ef to the whole corpus uniformly
+for (n, (f, e)) in enumerate(bitext): 
+	for e_i in e:
+		t_ef[(e_i,)] = 1.0/num_e
+		for f_i in f:
+			t_ef[(e_i, f_i)] = 1.0/num_e 
+
+#for loop for while not converged, didn't use threshold just a certain number of for loops
+#for this purpose
+for (n, (f, e)) in enumerate(bitext):
+	for e_i in set(e):
+		count_ef[(e_i,)] = 0.0
+		total_f[()] = 0.0
+		for f_i in set(f):
+			count_ef[(e_i, f_i)] = 0.0
+			total_f[f_i] =0.0 
+
+for x in range(0,10):
+	for (n, (f, e)) in enumerate(bitext): 
+		ew_in_s.clear()
+		fw_in_s.clear()
+		for e_i in e:
+			if e_i not in ew_in_s:
+				s_total[e_i] = 0.0
+				ew_in_s.add(e_i)
+				#adding null source word
+				s_total[e_i] += t_ef[(e_i,)] 
+
+			for f_i in f:
+				fw_in_s.add(f_i)
+				s_total[e_i] += t_ef[(e_i, f_i)]
+
+		for e_i in ew_in_s:
+			#for null values
+			count_ef[(e_i,)] += t_ef[(e_i,)]/s_total[e_i]
+			total_f[()] += t_ef[(e_i,)] /s_total[e_i]
+
+			for f_i in fw_in_s:
+				count_ef[(e_i, f_i)] += t_ef[(e_i,f_i)]/s_total[e_i]
+				total_f[f_i] += t_ef[(e_i,f_i)] /s_total[e_i]
+
+#maximizes
+	for (n, (f, e)) in enumerate(bitext): 
+		for e_i in set(e):
+			t_ef[(e_i,)] = (count_ef[(e_i,)]/total_f[()]) * nw
+			for f_i in set(f):
+				t_ef[(e_i, f_i)] = count_ef[(e_i, f_i)]/total_f[f_i] 
+
+for (f, e) in bitext:
+	for (j, e_j) in enumerate(e):
+		max_t_ef = 0
+		max_i = 0
+
+		for (i, f_i) in enumerate(f): 
+			if (t_ef[(e_j,f_i)] > max_t_ef):
+				max_t_ef = t_ef[(e_j,f_i)]
+				max_i = i
+
+		if (t_ef[(e_j,)] < max_t_ef):
+			sys.stdout.write("%i-%i " % (max_i,j))
+	sys.stdout.write("\n")

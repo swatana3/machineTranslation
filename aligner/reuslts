@@ -1,0 +1,141 @@
+reuslts
+---------------
+file:ibm_null on 1000 sentences
+Precision = 0.507622
+Recall = 0.609467
+AER = 0.457746
+
+-------------------
+file: IBM_NULL_SMOOTH
+Actual size of f = 3,0000
+
+n = 0.01 V=5000
+Precision = 0.207229
+Recall = 0.065089
+AER = 0.856574
+
+n=0.016 V=5000
+Precision = 0.207229
+Recall = 0.065089
+AER = 0.856574
+
+n= 0.05 V=5000
+Precision = 0.207229
+Recall = 0.065089
+AER = 0.856574
+
+n=0.1 V=5000
+Precision = 0.207229
+Recall = 0.065089
+AER = 0.856574
+
+n=0.16 V=5000
+Precision = 0.207229
+Recall = 0.065089
+AER = 0.856574
+
+-smooth was bad idea
+--------------------
+
+Extra Null 
+
+NW = 5.0 
+Precision = 0.521385
+Recall = 0.428994
+AER = 0.516285
+
+NW = 4.5
+Precision = 0.524194
+Recall = 0.434911
+AER = 0.511990
+
+NW = 4.3
+Precision = 0.523046
+Recall = 0.437870
+AER = 0.511350
+
+NW = 4.2
+Precision = 0.528846
+Recall = 0.479290
+AER = 0.490676
+
+NW = 4.1
+Precision = 0.528846
+Recall = 0.479290
+AER = 0.490676 
+-------> ran this on whole data set
+
+NW = 4.0 
+Precision = 0.528846
+Recall = 0.479290
+AER = 0.490676
+
+NW=3.9
+Precision = 0.525912
+Recall = 0.476331
+AER = 0.493597
+
+NW=3.8 
+Precision = 0.524904
+Recall = 0.476331
+AER = 0.494186
+
+NW = 3.7 
+Precision = 0.522901
+Recall = 0.476331
+AER = 0.495360
+
+NW = 3.5
+Precision = 0.520992
+Recall = 0.476331
+AER = 0.496520
+
+NW = 3.0 
+Precision = 0.516854
+Recall = 0.476331
+AER = 0.498853
+
+NW=2.5
+Precision = 0.513915
+Recall = 0.476331
+AER = 0.500570
+
+NW=2
+Precision = 0.505357
+Recall = 0.485207
+AER = 0.502227
+
+NW=1.5
+Precision = 0.493127
+Recall = 0.488166
+AER = 0.508696
+
+
+
+----------------------------------------
+*with smoothing by adding like the +1 smoothing but adding the first count 
+File: IBM_SMOOTH_N
+
+n = .016
+------------
+smooth = .016
+Precision = 0.507622
+Recall = 0.615385
+AER = 0.455734
+
+Ran on the whole data set since more accurate than base file.
+.455734 < 0.457746
+
+Accuracy dropped from .334 -> .34
+Not predictable
+
+
+
+LLR Model
+
+
+
+
+
+
+
