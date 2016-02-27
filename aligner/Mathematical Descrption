@@ -1,1 +1,143 @@
 Mathematical Descrption
+
+Sarah Watanabe
+Assignment #2: Word Alignment
+
+I Implemented IBM Model 1 and attempted to make improvements on it in my github repository located at https://github.com/swatana3/machineTranslation.git. 
+My handle name in the Leadership board is “swatanabe” 
+
+I gained some insight into improvements that I could make on the IBM Model 1 through a research paper titled “Improving IBM Word Alignment Model 1”(Moore). I chose this paper because the author said he had reduced the AER by 30%, which I thought would be impressive
+
+Some insight I gained from the paper was that
+
+1.	The model could be smoothed, so that rare words would most likely be translated to other rare words and stop having the over fitting problem. And, although add n smoothing has a bad reputation, since IBM Model 1 only uses unigrams. It didn’t seem like a bad idea.
+2.	There isn’t enough weight being added to null words as statistically gathered previously by the paper and it's not a difficult improvement.
+3.	The variables could be initialized using a heuristic model. The heuristic model would use the log-likelihood ratio instead of initializing the parameters with a uniform distribution. 
+
+I attempted the first 2 insights I had gotten from the paper. 
+
+I first created the IBM Model 1. 
+It is located in the aligner/ibm_null.
+
+The only way my code deviated from the IBM pseudo code is that the pseudo code wasn’t very clear on how to implement null. I added a null in each of the source sentences in f. It’s alignment is done so that if the word is more aligned to null, it will not print out an alignment from the source word to anything, since that’s how the program the professor provided us to test the AER, the score-alignments program, had run after inspecting hansards.a. 
+
+Mathematically, how IBM Model works is that it initializes the translation probabilities from the source word to target word with 1/number of words in the target vocabulary, since it has an equal probability of being any of the source words. Then, through iteration of the sentence, its count is found. The count is the probability that the source word is assigned to any of the target words in the sentence including the null target word. At the end, the translation is maximized, or recomputed after normalizing this count. 
+
+The first implementation I attempted was smoothing.
+I used this equation for smoothing in the program aligner/ibm_smooth
+tr(t|s) = (C(t, s) + n  /C(s) + n · |V | )
+
+where tr is the translation probability from 
+|V| is the estimate of the corpus of the target word
+n is the parameter for added smoothing
+C(t,s) is the count from source to target word
+C(s) is the marginal count from source word
+
+The results were bad. I ran it on 1000 sentence of the dataset and set the while loop convergence for 10 loops. 
+
+For my base class (aligner/ibm_null) my AER from the score-alignments program,  was 0.457746 under these conditions. These were my AER’s from the result. 
+
+file: IBM_NULL_SMOOTH
+Actual size of French corpus of 1,000-sentence approx. 3,3000
+
+n = 0.01 V=5000
+AER = 0.856574
+
+n=0.016 V=5000
+AER = 0.856574
+
+n= 0.05 V=5000
+AER = 0.856574
+
+n=0.1 V=5000
+AER = 0.856574
+
+n=0.16 V=5000
+AER = 0.856574
+
+Results were very bad, so I tried to implement a simpler add n smoothing to see if there was a difference in results and saw a better AER than my base case in one case. The program is called aligner/ibm_smooth_n and used the below equation
+tr(t|s) = (C(t, s) + n  /C(s) + n ). I came up with these n values when I wanted to add one additional count to the numerator 
+
+
+file: IBM_SMOOTH_N
+n = 0.033 = minimum c(t,s) *2  
+AER = 0.711712
+
+n= 0.016  = minmum c(t,s)
+AER = 0.455734
+(This AER < 0.457746(base))
+
+However, when I ran this on the entire corpus, it gave a lower value compared to when the base on the entire corpus.
+ Base = 0.334
+Smoothing = 0.34
+
+Base<Smoothing
+
+Next, after not having much luck with seeing improvements with smoothing, I tried to estimate improvements adding extra weight to null. It is in the file align/ibm_more_null. I just multiplied the translation probabilities by a factor. I chose these numbers by starting at 2 and noticing an improvement every time I incremented the null weight by 0.5 until I got to 5 where there stopped being an improvement. Then, I went back to where the improvements were plateau and trying 0.1 increments. I ran the whole dataset on what I thought might contain the best AER value out of my experiment, although it still hadn’t beat the base case over 1,000 sentences, but I thought I might see different results running it on the whole corpus. 
+These were my results:
+
+NW = 5.0 
+AER = 0.516285
+
+NW = 4.5
+AER = 0.511990
+
+NW = 4.3
+AER = 0.511350
+
+NW = 4.2
+AER = 0.490676
+
+NW = 4.1
+AER = 0.490676 
+
+-------> ran this on whole data set
+AER = 0.372840
+Base on Whole corpus (.334) < 0.372840
+------------This is very good but did not beat base case run on the whole corpus
+
+NW = 4.0 
+AER = 0.490676
+
+NW=3.9
+Precision = 0.525912
+Recall = 0.476331
+AER = 0.493597
+
+NW=3.8 
+Precision = 0.524904
+Recall = 0.476331
+AER = 0.494186
+
+NW = 3.7 
+Precision = 0.522901
+Recall = 0.476331
+AER = 0.495360
+
+NW = 3.5
+Precision = 0.520992
+Recall = 0.476331
+AER = 0.496520
+
+NW = 3.0 
+Precision = 0.516854
+Recall = 0.476331
+AER = 0.498853
+
+NW=2.5
+Precision = 0.513915
+Recall = 0.476331
+AER = 0.500570
+
+NW=2
+Precision = 0.505357
+Recall = 0.485207
+AER = 0.502227
+
+NW=1.5
+Precision = 0.493127
+Recall = 0.488166
+AER = 0.508696 
+
+
+None of my improvements had any affect. I would just try different variables to improve IBM Model 1, and my next step would be to experiment with the heuristic model idea. 

@@ -129,7 +129,7 @@ for x in range(0,10):
 #maximizes
 	for (n, (f, e)) in enumerate(bitext): 
 		for e_i in set(e):
-			t_ef[(e_i,)] = (count_ef[(e_i,)] + n)/(total_f[()] + n  )
+			t_ef[(e_i,)] = (count_ef[(e_i,)] + n)/(total_f[()] + n )
 			for f_i in set(f):
 				t_ef[(e_i, f_i)] = (count_ef[(e_i, f_i)] + n)/(total_f[f_i] + n)
 				# print "t_ef[(e_i,f_i)] is ", t_ef[(e_i,f_i)]
