@@ -111,5 +111,4 @@ for (f, e) in bitext:
 		if (t_ef[(e_j,)] < max_t_ef):
 			sys.stdout.write("%i-%i " % (max_i,j))
 		else :
-			sys.stderr.write("YES IT MAPPED TO NULL, well not yet..can't say for sure!!")
 	sys.stdout.write("\n")

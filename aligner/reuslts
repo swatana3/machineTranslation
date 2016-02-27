@@ -1,6 +1,8 @@
 reuslts
 ---------------
 file:ibm_null on 1000 sentences
+This is my IBM base file
+
 Precision = 0.507622
 Recall = 0.609467
 AER = 0.457746
